@@ -38,13 +38,22 @@ fi
 # ── Build comment body (9.2.4 format) ────────────────────────────────────────
 
 MARKER="<!-- logsage-pr-comment -->"
+HEADLINE=$(head -n 1 "${LOGSAGE_RESULT_FILE}")
 RESULT=$(cat "${LOGSAGE_RESULT_FILE}")
-SUMMARY=$(head -n 5 "${LOGSAGE_RESULT_FILE}")
 
-BODY="${MARKER}
+if [ "${HEADLINE}" = "No issues detected." ]; then
+  BODY="${MARKER}
 ### 🔍 LogSage — Likely Root Cause
 
-${SUMMARY}
+${HEADLINE}
+
+---
+_Analyzed by [LogSage](https://github.com/UreaLaden/log-sage) · Install locally for faster debugging_"
+else
+  BODY="${MARKER}
+### 🔍 LogSage — Likely Root Cause
+
+${HEADLINE}
 
 <details>
 <summary>Full analysis</summary>
@@ -55,6 +64,7 @@ ${RESULT}
 
 ---
 _Analyzed by [LogSage](https://github.com/UreaLaden/log-sage) · Install locally for faster debugging_"
+fi
 
 # ── Search for existing comment ──────────────────────────────────────────────
 
