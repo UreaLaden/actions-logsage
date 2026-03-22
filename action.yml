@@ -1,0 +1,41 @@
+name: LogSage
+description: Analyze CI logs and surface the most likely root cause of failures
+author: UreaLaden
+
+branding:
+  icon: search
+  color: blue
+
+inputs:
+  log-file:
+    description: Path to the CI log file to analyze
+    required: false
+  version:
+    description: LogSage version to install (e.g. 1.0.1). Defaults to latest.
+    required: false
+    default: latest
+
+outputs:
+  result:
+    description: LogSage CI summary output
+    value: ${{ steps.run-logsage.outputs.result }}
+  result-file:
+    description: Path to the file containing the full LogSage output
+    value: ${{ steps.run-logsage.outputs.result-file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install LogSage
+      shell: bash
+      run: ${{ github.action_path }}/scripts/install.sh
+      env:
+        LOGSAGE_VERSION: ${{ inputs.version }}
+
+    - name: Run LogSage
+      id: run-logsage
+      shell: bash
+      run: ${{ github.action_path }}/scripts/run.sh
+      env:
+        LOGSAGE_LOG_FILE: ${{ inputs.log-file }}
+        LOGSAGE_OUTPUT_FILE: ${{ runner.temp }}/logsage-output.md

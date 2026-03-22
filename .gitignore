@@ -1,0 +1,4 @@
+*.nupkg
+dist/
+bin/
+.DS_Store
