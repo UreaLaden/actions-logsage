@@ -14,7 +14,7 @@ inputs:
     description: Path to captured CI output to analyze. Ignored when run is provided.
     required: false
   github-token:
-    description: GitHub token for posting PR comments. Requires pull-requests: write.
+    description: "GitHub token for posting PR comments. Requires pull-requests: write."
     required: false
     default: ${{ github.token }}
   post-comment:
