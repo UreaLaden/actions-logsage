@@ -3,8 +3,8 @@ description: Analyze CI logs and surface the most likely root cause of failures
 author: UreaLaden
 
 branding:
-  icon: search
-  color: blue
+  icon: activity
+  color: orange
 
 inputs:
   run:

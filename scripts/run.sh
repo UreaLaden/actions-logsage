@@ -18,12 +18,20 @@ if [ -n "${LOGSAGE_RUN_CMD:-}" ]; then
   bash -c "${LOGSAGE_RUN_CMD}" > "${cmd_output_file}" 2>&1
   cmd_exit=$?
 
+  # Debug: surface captured command output when debug logging is enabled
+  echo "::debug::LogSage: captured output file → ${cmd_output_file}"
+  sed 's/^/::debug::/' "${cmd_output_file}" 2>/dev/null || true
+
   if [ "${cmd_exit}" -ne 0 ]; then
     # Command failed — run LogSage against captured output
     logsage ci "${cmd_output_file}" --ci-summary > "${OUTPUT_FILE}" 2>&1 || true
 
     # Ensure output file exists even if logsage errors
     touch "${OUTPUT_FILE}"
+
+    # Debug: surface LogSage analysis output when debug logging is enabled
+    echo "::debug::LogSage: analysis output file → ${OUTPUT_FILE}"
+    sed 's/^/::debug::/' "${OUTPUT_FILE}" 2>/dev/null || true
 
     # Persist step outputs
     echo "result<<EOF" >> "${GITHUB_OUTPUT}"
