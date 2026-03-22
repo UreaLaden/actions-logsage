@@ -7,8 +7,11 @@ branding:
   color: blue
 
 inputs:
+  run:
+    description: Shell command to execute. Output is captured and analyzed on failure. Takes precedence over log-file.
+    required: false
   log-file:
-    description: Path to the CI log file to analyze
+    description: Path to captured CI output to analyze. Ignored when run is provided.
     required: false
   version:
     description: LogSage version to install (e.g. 1.0.1). Defaults to latest.
@@ -37,5 +40,6 @@ runs:
       shell: bash
       run: ${{ github.action_path }}/scripts/run.sh
       env:
+        LOGSAGE_RUN_CMD: ${{ inputs.run }}
         LOGSAGE_LOG_FILE: ${{ inputs.log-file }}
         LOGSAGE_OUTPUT_FILE: ${{ runner.temp }}/logsage-output.md

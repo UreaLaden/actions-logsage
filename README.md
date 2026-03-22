@@ -1,21 +1,32 @@
 # actions-logsage
 
-GitHub Action that runs [LogSage](https://github.com/UreaLaden/log-sage) against a CI log file and surfaces the most likely root cause of failures.
+GitHub Action that analyzes failed CI output with [LogSage](https://github.com/UreaLaden/log-sage) and surfaces the most likely root cause — with supporting evidence and actionable next steps.
 
 ## Usage
+
+**Wrap a command** — LogSage runs automatically if it fails:
 
 ```yaml
 - uses: UreaLaden/actions-logsage@v1
   with:
-    log-file: path/to/build.log   # optional — omit to pipe stdin
-    version: latest               # optional — defaults to latest release
+    run: npm test
+```
+
+**Analyze an existing log file** — use `if: failure()` to trigger after a failing step:
+
+```yaml
+- uses: UreaLaden/actions-logsage@v1
+  if: failure()
+  with:
+    log-file: path/to/build.log
 ```
 
 ## Inputs
 
 | Input | Required | Default | Description |
 |---|---|---|---|
-| `log-file` | No | — | Path to the CI log file to analyze |
+| `run` | No | — | Shell command to execute. Output is captured and analyzed on failure. Takes precedence over `log-file`. |
+| `log-file` | No | — | Path to captured CI output to analyze. Ignored when `run` is provided. |
 | `version` | No | `latest` | LogSage release version to install (e.g. `1.0.1`) |
 
 ## Outputs
@@ -25,7 +36,29 @@ GitHub Action that runs [LogSage](https://github.com/UreaLaden/log-sage) against
 | `result` | LogSage CI summary as a string |
 | `result-file` | Path to the file containing the full LogSage output |
 
-## Example — analyze a failed build log
+## Examples
+
+### Wrap a command (recommended)
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test and analyze failures
+        id: logsage
+        uses: UreaLaden/actions-logsage@v1
+        with:
+          run: npm test
+
+      - name: Print LogSage result
+        if: failure()
+        run: echo "${{ steps.logsage.outputs.result }}"
+```
+
+### Analyze an existing log file
 
 ```yaml
 jobs:
@@ -34,11 +67,13 @@ jobs:
     steps:
       - name: Analyze logs
         id: logsage
+        if: failure()
         uses: UreaLaden/actions-logsage@v1
         with:
           log-file: ${{ runner.temp }}/build.log
 
       - name: Print result
+        if: failure()
         run: echo "${{ steps.logsage.outputs.result }}"
 ```
 
