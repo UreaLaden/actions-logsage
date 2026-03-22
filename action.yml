@@ -13,6 +13,14 @@ inputs:
   log-file:
     description: Path to captured CI output to analyze. Ignored when run is provided.
     required: false
+  github-token:
+    description: GitHub token for posting PR comments. Requires pull-requests: write.
+    required: false
+    default: ${{ github.token }}
+  post-comment:
+    description: Set to 'false' to disable automatic PR comment posting.
+    required: false
+    default: 'true'
   version:
     description: LogSage version to install (e.g. 1.0.1). Defaults to latest.
     required: false
@@ -43,3 +51,12 @@ runs:
         LOGSAGE_RUN_CMD: ${{ inputs.run }}
         LOGSAGE_LOG_FILE: ${{ inputs.log-file }}
         LOGSAGE_OUTPUT_FILE: ${{ runner.temp }}/logsage-output.md
+
+    - name: Post PR Comment
+      if: always()
+      shell: bash
+      run: ${{ github.action_path }}/scripts/comment.sh
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        LOGSAGE_RESULT_FILE: ${{ steps.run-logsage.outputs.result-file }}
+        LOGSAGE_POST_COMMENT: ${{ inputs.post-comment }}

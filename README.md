@@ -27,6 +27,8 @@ GitHub Action that analyzes failed CI output with [LogSage](https://github.com/U
 |---|---|---|---|
 | `run` | No | — | Shell command to execute. Output is captured and analyzed on failure. Takes precedence over `log-file`. |
 | `log-file` | No | — | Path to captured CI output to analyze. Ignored when `run` is provided. |
+| `github-token` | No | `github.token` | GitHub token for posting PR comments. Requires `pull-requests: write`. |
+| `post-comment` | No | `'true'` | Set to `'false'` to disable automatic PR comment posting. |
 | `version` | No | `latest` | LogSage release version to install (e.g. `1.0.1`) |
 
 ## Outputs
@@ -38,7 +40,26 @@ GitHub Action that analyzes failed CI output with [LogSage](https://github.com/U
 
 ## Examples
 
-### Wrap a command (recommended)
+### Wrap a command with automatic PR comment (recommended)
+
+When a command fails, LogSage analyzes the output and posts the result as a PR comment. On re-runs the comment is updated in place — no duplicates. Set `post-comment: 'false'` to disable.
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test with LogSage analysis
+        uses: UreaLaden/actions-logsage@v1
+        with:
+          run: npm test
+```
+
+### Wrap a command (no PR comment)
 
 ```yaml
 jobs:
@@ -52,6 +73,7 @@ jobs:
         uses: UreaLaden/actions-logsage@v1
         with:
           run: npm test
+          post-comment: 'false'
 
       - name: Print LogSage result
         if: failure()
